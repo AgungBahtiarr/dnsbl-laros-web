@@ -1,0 +1,56 @@
+---
+const {result} = Astro.props;
+const dnsblResult = result;
+
+---
+{dnsblResult && (
+    <div class="SingleIPResult">
+      <div class="stats shadow mb-4">
+        <div class="stat">
+          <div class="stat-title">Total Checks</div>
+          <div class="stat-value">{dnsblResult.summary.total}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Listed</div>
+          <div class="stat-value text-error">{dnsblResult.summary.listed}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Clean</div>
+          <div class="stat-value text-success">{dnsblResult.summary.clean}</div>
+        </div>
+      </div>
+  
+      <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th>DNSBL</th>
+              <th>Status</th>
+              <th>Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dnsblResult.results.map((result: any) => (
+              result.isListed && (
+                <tr>
+                  <td>{result.dnsbl}</td>
+                  <td>
+                    <span class="badge badge-error">Listed</span>
+                  </td>
+                  <td>{result.info || '-'}</td>
+                </tr>
+              )
+            ))}
+          </tbody>
+        </table>
+      </div>
+  
+      <div class="mt-4">
+        <p class="text-sm">
+          <strong>IP:</strong> {dnsblResult.ip}<br />
+          <strong>Hostname:</strong> {dnsblResult.hostname}<br />
+          <strong>Timestamp:</strong> {new Date(dnsblResult.timestamp).toLocaleString()}
+        </p>
+      </div>
+    </div>
+  )}

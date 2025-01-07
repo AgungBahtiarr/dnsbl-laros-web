@@ -1,0 +1,68 @@
+---
+const {result} = Astro.props;
+const prefixResult = result;
+---
+
+{prefixResult && (
+    <div class="PrefixResult">
+      <div class="stats shadow mb-4">
+        <div class="stat">
+          <div class="stat-title">Total IPs</div>
+          <div class="stat-value">{prefixResult.summary.totalIPs}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Listed IPs</div>
+          <div class="stat-value text-error">{prefixResult.summary.listedCount}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Clean IPs</div>
+          <div class="stat-value text-success">{prefixResult.summary.cleanCount}</div>
+        </div>
+      </div>
+  
+      <div class="alert alert-info mb-4">
+        <div>
+          <h3 class="font-bold">Scan Information</h3>
+          <p>Prefix: {prefixResult.prefix}</p>
+          <p>Duration: {prefixResult.scanDuration}</p>
+          <p>Listed Percentage: {prefixResult.summary.percentageListed}</p>
+        </div>
+      </div>
+  
+      <div class="divider">Listed IPs</div>
+  
+      {prefixResult.listedIPs.map((ip: any) => (
+        <div class="mb-4 p-4 border rounded-lg">
+          <h3 class="font-bold mb-2">IP: {ip.ip }</h3>
+          <table class="table table-compact w-full">
+            <thead>
+              <tr>
+                <th>DNSBL</th>
+                <th>Status</th>
+                <th>Info</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ip.results.filter((r: { isListed: any; }) => r.isListed).map((result: any) => (
+                <tr>
+                  <td>{result.dnsbl}</td>
+                  <td>
+                    <span class="badge badge-error">Listed</span>
+                  </td>
+                  <td>{result.info || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+  
+      <div class="alert alert-success mt-4">
+        <div>
+          <h3 class="font-bold">Performance Metrics</h3>
+          <p>Average Time per IP: {prefixResult.performance.averageTimePerIP}</p>
+          <p>IPs per Second: {prefixResult.performance.ipsPerSecond}</p>
+        </div>
+      </div>
+    </div>
+  )}

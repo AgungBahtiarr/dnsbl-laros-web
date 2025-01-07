@@ -1,11 +1,159 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import PrefixResult from '../components/PrefixResult.astro';
+import SingleIPResult from '../components/SingleIPResult.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+interface DNSBLResult {
+  ip: string;
+  hostname: string;
+  timestamp: string;
+  results: {
+    dnsbl: string;
+    isListed: boolean;
+    info?: string;
+    unblockInfo?: {
+      provider: string;
+      method: string;
+      url: string;
+    };
+  }[];
+  summary: {
+    total: number;
+    listed: number;
+    clean: number;
+  };
+}
+
+interface PrefixCheckResult {
+  prefix: string;
+  timestamp: string;
+  scanDuration: string;
+  totalChecked: number;
+  listedIPs: DNSBLResult[];
+  summary: {
+    totalIPs: number;
+    listedCount: number;
+    cleanCount: number;
+    percentageListed: string;
+  };
+  performance: {
+    averageTimePerIP: string;
+    ipsPerSecond: string;
+  };
+}
+
+let dnsblResult: DNSBLResult | null = null;
+let prefixResult: PrefixCheckResult | null = null;
+let error: string | null = null;
+let activeTab = 'single'; 
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const ip = data.get('ip');
+  const prefix = data.get('prefix');
+  const checkType = data.get('checkType');
+
+  try {
+    if (checkType === 'single') {
+      const response = await fetch(`http://localhost:3000/api/check?ip=${ip}`);
+      if (!response.ok) throw new Error('Failed to fetch DNSBL data');
+      dnsblResult = await response.json();
+      activeTab = 'single';
+    } else if (checkType === 'prefix') {
+      const response = await fetch(`http://localhost:3000/api/check-prefix?ip=${ip}&prefix=${prefix}`);
+      if (!response.ok) throw new Error('Failed to fetch prefix check data');
+      prefixResult = await response.json();
+      activeTab = 'prefix';
+    }
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'An error occurred';
+  }
+}
 ---
 
 <Layout>
-	<Welcome />
+  <div class="flex justify-center items-center min-h-screen p-4">
+    <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">DNSBL Checker - Laros</h2>
+        
+        <div class="tabs tabs-bordered mb-6">
+          <a class={`tab ${activeTab === 'single' ? 'tab-active' : ''}`} data-tab="single">Single IP Check</a>
+          <a class={`tab ${activeTab === 'prefix' ? 'tab-active' : ''}`} data-tab="prefix">Prefix Check</a>
+        </div>
+
+        <div id="singleCheck" class={activeTab === 'single' ? '' : 'hidden'}>
+          <form method="post" class="mb-6">
+            <input type="hidden" name="checkType" value="single" />
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                name="ip"
+                placeholder="Enter IP address (e.g., 103.186.213.245)" 
+                class="input input-bordered flex-1" 
+                required
+                pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+              />
+              <button type="submit" class="btn btn-primary">Check</button>
+            </div>
+          </form>
+
+          {dnsblResult && <SingleIPResult result={dnsblResult} />}
+        </div>
+
+        <div id="prefixCheck" class={activeTab === 'prefix' ? '' : 'hidden'}>
+          <form method="post" class="mb-6">
+            <input type="hidden" name="checkType" value="prefix" />
+            <div class="flex flex-row gap-2">
+              <input 
+                type="text" 
+                name="ip"
+                placeholder="Enter IP address (e.g., 103.186.213.240)" 
+                class="input input-bordered" 
+                required
+                pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+              />
+              <input 
+                type="text"
+				inputmode="numeric" 
+                name="prefix"
+                placeholder="00" 
+                class="input input-bordered w-12" 
+                required
+                min="1"
+                max="32"
+              />
+              <button type="submit" class="btn btn-primary">Check Prefix</button>
+            </div>
+          </form>
+
+          {prefixResult && <PrefixResult result={prefixResult} />}
+        </div>
+
+        {error && (
+          <div class="alert alert-error mb-4">
+            <span>{error}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
 </Layout>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const tabId = (e.target as HTMLElement).getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
+      (e.target as HTMLElement).classList.add('tab-active');
+      
+      document.getElementById('singleCheck')?.classList.add('hidden');
+      document.getElementById('prefixCheck')?.classList.add('hidden');
+      
+      document.getElementById(`${tabId}Check`)?.classList.remove('hidden');
+    });
+  });
+</script>
+
+
+
