@@ -55,12 +55,12 @@ if (Astro.request.method === 'POST') {
 
   try {
     if (checkType === 'single') {
-      const response = await fetch(`http://localhost:3000/api/check?ip=${ip}`);
+      const response = await fetch(`${import.meta.env.API_URL}/api/check?ip=${ip}`);
       if (!response.ok) throw new Error('Failed to fetch DNSBL data');
       dnsblResult = await response.json();
       activeTab = 'single';
     } else if (checkType === 'prefix') {
-      const response = await fetch(`http://localhost:3000/api/check-prefix?ip=${ip}&prefix=${prefix}`);
+      const response = await fetch(`${import.meta.env.API_URL}/api/check-prefix?ip=${ip}&prefix=${prefix}`);
       if (!response.ok) throw new Error('Failed to fetch prefix check data');
       prefixResult = await response.json();
       activeTab = 'prefix';
