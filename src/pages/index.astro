@@ -55,21 +55,46 @@ if (Astro.request.method === 'POST') {
 
   try {
     if (checkType === 'single') {
-      const response = await fetch(`${import.meta.env.API_URL}/api/check?ip=${ip}`,{
-        headers: {'Content-Type': 'application/json',}
+      const response = await fetch(`${import.meta.env.API_URL}/api/check?ip=${ip}`, {
+        method: 'GET', // atau 'POST' sesuai dengan API
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
-      if (!response.ok) throw new Error('Failed to fetch DNSBL data');
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`Failed to fetch DNSBL data: ${response.status}`);
+      }
+      
       dnsblResult = await response.json();
       activeTab = 'single';
     } else if (checkType === 'prefix') {
-      const response = await fetch(`${import.meta.env.API_URL}/api/check-prefix?ip=${ip}&prefix=${prefix}`,{
-        headers: {'Content-Type': 'application/json',}
+      const response = await fetch(`${import.meta.env.API_URL}/api/check-prefix?ip=${ip}&prefix=${prefix}`, {
+        method: 'GET', // atau 'POST' sesuai dengan API
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
-      if (!response.ok) throw new Error('Failed to fetch prefix check data');
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`Failed to fetch prefix check data: ${response.status}`);
+      }
+      
       prefixResult = await response.json();
       activeTab = 'prefix';
     }
   } catch (e) {
+    console.error('Fetch error:', e);
     error = e instanceof Error ? e.message : 'An error occurred';
   }
 }
