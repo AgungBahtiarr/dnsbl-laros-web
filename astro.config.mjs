@@ -15,5 +15,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  adapter: netlify(),
+  adapter: node({
+    mode: "standalone",
+  }),
 });
