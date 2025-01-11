@@ -101,6 +101,16 @@ if (Astro.request.method === 'POST') {
 ---
 
 <Layout>
+  <div id="loadingOverlay" class="fixed inset-0 z-50 hidden">
+    <div class="w-full h-full flex justify-center items-center">
+      <div class="card bg-base-100 shadow-xl p-8 flex flex-col items-center">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <p class="mt-4 text-lg font-medium">Processing request...</p>
+        <p class="text-sm text-gray-500">This may take a few moments</p>
+      </div>
+    </div>
+  </div>
+
   <div class="flex justify-center items-center min-h-screen p-4">
     <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
       <div class="card-body p-4 md:p-6">
@@ -112,7 +122,7 @@ if (Astro.request.method === 'POST') {
         </div>
 
         <div id="singleCheck" class={activeTab === 'single' ? '' : 'hidden'}>
-          <form method="post" class="mb-6">
+          <form method="post" class="mb-6" id="singleForm">
             <input type="hidden" name="checkType" value="single" />
             <div class="flex flex-col md:flex-row gap-2">
               <input 
@@ -131,7 +141,7 @@ if (Astro.request.method === 'POST') {
         </div>
 
         <div id="prefixCheck" class={activeTab === 'prefix' ? '' : 'hidden'}>
-          <form method="post" class="mb-6">
+          <form method="post" class="mb-6" id="prefixForm">
             <input type="hidden" name="checkType" value="prefix" />
             <div class="flex flex-col md:flex-row gap-2">
               <input 
@@ -170,6 +180,7 @@ if (Astro.request.method === 'POST') {
 </Layout>
 
 <script>
+  // Tab switching logic
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
       const tabId = (e.target as HTMLElement).getAttribute('data-tab');
@@ -181,6 +192,19 @@ if (Astro.request.method === 'POST') {
       
       document.getElementById(`${tabId}Check`)?.classList.remove('hidden');
     });
+  });
+
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const forms = document.querySelectorAll('form');
+
+  forms.forEach(form => {
+    form.addEventListener('submit', (e) => {
+      loadingOverlay?.classList.remove('hidden');
+    });
+  });
+
+  window.addEventListener('load', () => {
+    loadingOverlay?.classList.add('hidden');
   });
 </script>
 
@@ -199,5 +223,3 @@ if (Astro.request.method === 'POST') {
     }
   }
 </style>
-
-
