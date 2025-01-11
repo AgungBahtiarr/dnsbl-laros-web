@@ -103,27 +103,27 @@ if (Astro.request.method === 'POST') {
 <Layout>
   <div class="flex justify-center items-center min-h-screen p-4">
     <div class="card w-full max-w-2xl bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">DNSBL Checker - Laros</h2>
+      <div class="card-body p-4 md:p-6">
+        <h2 class="card-title text-xl md:text-2xl mb-4 text-center md:text-left">DNSBL Checker - Laros</h2>
         
-        <div class="tabs tabs-bordered mb-6">
-          <a class={`tab ${activeTab === 'single' ? 'tab-active' : ''}`} data-tab="single">Single IP Check</a>
-          <a class={`tab ${activeTab === 'prefix' ? 'tab-active' : ''}`} data-tab="prefix">Prefix Check</a>
+        <div class="tabs tabs-bordered mb-6 flex flex-wrap justify-center md:justify-start">
+          <a class={`tab tab-sm md:tab-md ${activeTab === 'single' ? 'tab-active' : ''}`} data-tab="single">Single IP Check</a>
+          <a class={`tab tab-sm md:tab-md ${activeTab === 'prefix' ? 'tab-active' : ''}`} data-tab="prefix">Prefix Check</a>
         </div>
 
         <div id="singleCheck" class={activeTab === 'single' ? '' : 'hidden'}>
           <form method="post" class="mb-6">
             <input type="hidden" name="checkType" value="single" />
-            <div class="flex gap-2">
+            <div class="flex flex-col md:flex-row gap-2">
               <input 
                 type="text" 
                 name="ip"
                 placeholder="Enter IP address (e.g., 192.168.1.1)" 
-                class="input input-bordered flex-1" 
+                class="input input-bordered w-full md:flex-1 text-sm md:text-base" 
                 required
                 pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
               />
-              <button type="submit" class="btn btn-primary">Check</button>
+              <button type="submit" class="btn btn-primary w-full md:w-auto">Check</button>
             </div>
           </form>
 
@@ -133,26 +133,26 @@ if (Astro.request.method === 'POST') {
         <div id="prefixCheck" class={activeTab === 'prefix' ? '' : 'hidden'}>
           <form method="post" class="mb-6">
             <input type="hidden" name="checkType" value="prefix" />
-            <div class="flex flex-row gap-2">
+            <div class="flex flex-col md:flex-row gap-2">
               <input 
                 type="text" 
                 name="ip"
                 placeholder="Enter IP address (e.g., 192.168.1.1)" 
-                class="input input-bordered" 
+                class="input input-bordered w-full md:flex-1 text-sm md:text-base" 
                 required
                 pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
               />
               <input 
                 type="text"
-				inputmode="numeric" 
+                inputmode="numeric" 
                 name="prefix"
                 placeholder="00" 
-                class="input input-bordered w-12" 
+                class="input input-bordered w-full md:w-20 text-sm md:text-base" 
                 required
                 min="1"
                 max="32"
               />
-              <button type="submit" class="btn btn-primary">Check Prefix</button>
+              <button type="submit" class="btn btn-primary w-full md:w-auto">Check Prefix</button>
             </div>
           </form>
 
@@ -160,7 +160,7 @@ if (Astro.request.method === 'POST') {
         </div>
 
         {error && (
-          <div class="alert alert-error mb-4">
+          <div class="alert alert-error mb-4 text-sm md:text-base">
             <span>{error}</span>
           </div>
         )}
@@ -184,5 +184,20 @@ if (Astro.request.method === 'POST') {
   });
 </script>
 
+<style>
+  @media (max-width: 768px) {
+    .card-body {
+      padding: 1rem;
+    }
+    
+    .input, .btn {
+      font-size: 0.875rem;
+    }
+    
+    .tabs {
+      font-size: 0.875rem;
+    }
+  }
+</style>
 
 
